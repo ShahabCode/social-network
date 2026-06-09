@@ -123,3 +123,12 @@ MEDIA_URL = '/images/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'images')
 
 AUTH_USER_MODEL = 'social.User'
+
+LOGIN_REDIRECT_URL = '/' # برای نکست
+LOGIN_URL = '/login/'
+LOGOUT_URL = '/logout/'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'social.authentication.PhoneAuthBackend'
+]
