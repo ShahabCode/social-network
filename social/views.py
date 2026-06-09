@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from .forms import *
@@ -36,4 +37,19 @@ def edit_user(request):
             return redirect('social:profile')
     else:
         user_form = UserEditForm(instance=request.user)
-    return render(request, 'registration/edit_user.html', {'user_form': user_form})  # ✅
+    return render(request, 'registration/edit_user.html', {'user_form': user_form})
+
+
+def ticket(request):
+    send = False
+    if request.method == "POST":
+        form = TicketForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            message = f"{cd['name']}\n{cd['email']}\n{cd['phone']}\n\n{cd['message']}"
+            send_mail(cd['subject'], message, 'pythonsabzlearn@gmail.com', ['shanixhunt@gmail.com'],
+                      fail_silently=False)
+            send = True
+    else:
+        form = TicketForm()
+    return render(request, "forms/ticket.html", {'forms': form, 'send': send})
