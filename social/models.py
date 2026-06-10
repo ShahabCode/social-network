@@ -9,3 +9,21 @@ class User(AbstractUser):
     photo = models.ImageField(upload_to='account_images/', blank=True, null=True)
     job = models.CharField(max_length=250, verbose_name='شغل', blank=True, null=True)
     phone = models.CharField(max_length=11, blank=True, null=True)
+
+
+class Post(models.Model):
+    # relations
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_posts', verbose_name="نویسنده")
+    # data fields
+    description = models.TextField(verbose_name="توضیحات")
+    # date
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created']
+        indexes = [models.Index(fields=['-created'])]
+        verbose_name_plural = "پست ها"
+
+    def __str__(self):
+        return self.author.first_name

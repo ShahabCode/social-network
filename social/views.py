@@ -4,7 +4,7 @@ from django.core.mail import send_mail
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from .forms import *
-
+from .models import *
 
 # Create your views here.
 
@@ -53,3 +53,9 @@ def ticket(request):
     else:
         form = TicketForm()
     return render(request, "forms/ticket.html", {'forms': form, 'send': send})
+
+
+def post_list(request):
+    posts = Post.objects.all()
+    context = { 'posts': posts }
+    return render(request, "social/list.html", context)
