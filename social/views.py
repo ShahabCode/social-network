@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
+from taggit.models import Tag
+
 from .forms import *
 from .models import *
 
@@ -55,7 +57,11 @@ def ticket(request):
     return render(request, "forms/ticket.html", {'forms': form, 'send': send})
 
 
-def post_list(request):
+def post_list(request, tag_slug=None):
     posts = Post.objects.all()
-    context = { 'posts': posts }
+    tag = None
+    if tag_slug:
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        posts = Post.objects.filter(tags__in=[tag]).order_by('-created')
+    context = { 'posts': posts, 'tag': tag }
     return render(request, "social/list.html", context)
