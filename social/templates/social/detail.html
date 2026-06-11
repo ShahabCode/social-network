@@ -6,6 +6,31 @@ Published at ({{ post.created }}) by {{ post.author }}
     {% if not forloop.last %}, {% endif %}
 {% endfor %}
 
+<hr>
+
+<!-- نمایش کامنت ها -->
+<h2>کامنت ها ({{ comments.count }})</h2>
+{% for comment in comments %}
+    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+        <strong>{{ comment.name }}</strong> — {{ comment.created }}
+        <p>{{ comment.body }}</p>
+    </div>
+{% empty %}
+    <p>هنوز کامنتی ثبت نشده.</p>
+{% endfor %}
+
+<hr>
+
+<!-- فرم کامنت -->
+<h2>کامنت بگذارید</h2>
+<form method="post" action="{% url 'social:post_comment' post.id %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="ثبت کامنت">
+</form>
+
+<hr>
+
 <h2>Similar Posts</h2>
 {% for post in similar_posts %}
     <p>

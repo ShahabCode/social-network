@@ -83,3 +83,17 @@ class CreatePostForm(forms.ModelForm):
 
 class SearchForm(forms.Form):
     query = forms.CharField()
+
+
+class CommentForm(forms.ModelForm):
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        if name:
+            if len(name) < 3:
+                raise forms.ValidationError("نام کوتاه است")
+            else:
+                return name
+
+    class Meta:
+        model = Comment
+        fields = ['name', 'body']

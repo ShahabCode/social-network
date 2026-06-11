@@ -4,6 +4,7 @@ from django.core.mail import send_mail
 from django.db.models import Count
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
+from django.views.decorators.http import require_POST
 from taggit.models import Tag
 from django.contrib.postgres.search import TrigramSimilarity
 from django.db.models import Q
@@ -90,8 +91,12 @@ def post_detail(request, pk):
     post_tags_ids = post.tags.values_list('id', flat=True)
     similar_posts = Post.objects.filter(tags__in=post_tags_ids).exclude(id=post.id)
     similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags', '-created')[:2]
+    comments = post.comments.filter(active=True)
+    form = CommentForm()
     context = {
         'post': post,
+        'comments': comments,
+        'form': form,
         'similar_posts': similar_posts,
     }
     return render(request, 'social/detail.html', context)
@@ -114,3 +119,16 @@ def post_search(request):
             results = (results1 | results2).order_by('-similarity').distinct()
     context = {'results': results, 'query': query}
     return render(request, 'social/search.html', context)
+
+
+@require_POST
+def post_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    comment = None
+    form = CommentForm(data=request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.post = post
+        comment.save()
+    context = {'post': post, 'comment': comment, 'form': form}
+    return render(request, 'forms/comment.html', context)
