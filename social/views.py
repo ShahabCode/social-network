@@ -5,6 +5,8 @@ from django.db.models import Count
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from taggit.models import Tag
+from django.contrib.postgres.search import TrigramSimilarity
+from django.db.models import Q
 
 from .forms import *
 from .models import *
@@ -93,3 +95,22 @@ def post_detail(request, pk):
         'similar_posts': similar_posts,
     }
     return render(request, 'social/detail.html', context)
+
+
+def post_search(request):
+    query = None
+    results = []
+    if 'query' in request.GET:
+        form = SearchForm(data=request.GET)
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            results1 = (Post.objects.annotate(similarity=TrigramSimilarity('tags__name', query))
+                .filter(similarity__gt=0.1))
+            results2 = (Post.objects
+            .annotate(similarity=TrigramSimilarity('description', query))
+            .filter(
+                Q(similarity__gt=0.1) | Q(description__icontains=query)
+            ))
+            results = (results1 | results2).order_by('-similarity').distinct()
+    context = {'results': results, 'query': query}
+    return render(request, 'social/search.html', context)

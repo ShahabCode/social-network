@@ -1,0 +1,21 @@
+{% if query %}
+<div class="mb-4 text-center">
+        <h2 class="h1 m-0"> نتایج جستجو برای {{ query }}</h2>
+        <h2 class="h2 m-0">{{ results.count }} نتیجه </h2>
+      </div>
+    {% endif %}
+    <br>
+    {% for post in results %}
+<div class="container" data-sticky-container>
+    <div class="card mb-4">
+        <div class="row">
+            <div class="col-md-7 mt-3 mt-md-0">
+                <h4><a href="{{post.get_absolute_url}}" class="btn-link stretched-link text-reset"><i class="fas fa-circle me-2 small fw-bold"></i>{{ post.description}}</a></h4>
+{#                <p>{{ post.description | truncatewords:20 }} </p>#}
+            </div>
+        </div>
+    </div>
+</div>
+    {% empty %}
+        <p>هیچ نتیجه ای یافت نشد </p>
+    {% endfor %}
