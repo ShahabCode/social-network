@@ -8,7 +8,7 @@ from django.views.decorators.http import require_POST
 from taggit.models import Tag
 from django.contrib.postgres.search import TrigramSimilarity
 from django.db.models import Q
-
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .forms import *
 from .models import *
 
@@ -67,6 +67,14 @@ def post_list(request, tag_slug=None):
     if tag_slug:
         tag = get_object_or_404(Tag, slug=tag_slug)
         posts = Post.objects.filter(tags__in=[tag]).order_by('-created')
+    paginator = Paginator(posts, 2)
+    page_number = request.GET.get('page', 1)
+    try:
+        posts = paginator.page(page_number)
+    except EmptyPage:
+        posts = paginator.page(paginator.num_pages)
+    except PageNotAnInteger:
+        posts = paginator.page(1)
     context = { 'posts': posts, 'tag': tag }
     return render(request, "social/list.html", context)
 

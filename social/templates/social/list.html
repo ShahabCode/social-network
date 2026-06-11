@@ -25,6 +25,24 @@
         <a href="{% url 'social:post_list_by_tag' tag.slug %}">{{ tag.name }}</a>
         {% if not forloop.last %}, {% endif %}
     {% endfor %}
-    <br>
-    <br>
+    <br><br>
 {% endfor %}
+
+<!-- صفحه بندی -->
+<div class="pagination">
+    <span class="step-links">
+        {% if posts.has_previous %}
+            <a href="?page=1">« اول</a>
+            <a href="?page={{ posts.previous_page_number }}">قبلی</a>
+        {% endif %}
+
+        <span class="current">
+            صفحه {{ posts.number }} از {{ posts.paginator.num_pages }}
+        </span>
+
+        {% if posts.has_next %}
+            <a href="?page={{ posts.next_page_number }}">بعدی</a>
+            <a href="?page={{ posts.paginator.num_pages }}">آخر »</a>
+        {% endif %}
+    </span>
+</div>
