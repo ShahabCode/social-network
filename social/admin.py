@@ -3,6 +3,14 @@ from .models import *
 from django.contrib.auth.admin import UserAdmin
 
 # Register your models here.
+class ImageInline(admin.TabularInline):
+    model = Image
+    extra = 0
+
+class CommentInline(admin.TabularInline):
+    model = Comment
+    extra = 0
+
 
 @admin.register(User)
 class UserAdmin(UserAdmin):
@@ -17,6 +25,7 @@ class PostAdmin(admin.ModelAdmin):
     list_display = ['author', 'created']
     ordering = ['created']
     search_fields = ['description']
+    inlines = [ImageInline, CommentInline]
 
 
 @admin.register(Comment)
@@ -25,3 +34,8 @@ class CommentAdmin(admin.ModelAdmin):
     list_filter = ['active', 'created', 'updated']
     search_fields = ['name', 'body']
     list_editable = ['active']
+
+
+@admin.register(Image)
+class ImageAdmin(admin.ModelAdmin):
+    list_display = ['post', 'title', 'created']

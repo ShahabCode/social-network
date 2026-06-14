@@ -8,6 +8,23 @@ Published at ({{ post.created }}) by {{ post.author }}
 
 <hr>
 
+<!-- نمایش عکس ها -->
+{% for image in post.images.all %}
+    <div style="margin-bottom: 15px;">
+        <img src="{{ image.image_file.url }}" alt="{{ image.title }}">
+        {% if image.title %}
+            <p><strong>{{ image.title }}</strong></p>
+        {% endif %}
+        {% if image.description %}
+            <p>{{ image.description }}</p>
+        {% endif %}
+    </div>
+{% empty %}
+    <p>عکسی ثبت نشده.</p>
+{% endfor %}
+
+<hr>
+
 <!-- نمایش کامنت ها -->
 <h2>کامنت ها ({{ comments.count }})</h2>
 {% for comment in comments %}
