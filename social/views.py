@@ -18,8 +18,11 @@ def log_out(request):
     logout(request)
     return HttpResponse("شما خارج شدید")
 
+@login_required
 def profile(request):
-    return HttpResponse("شما وارد شدید")
+    user = request.user
+    posts = Post.objects.filter(author=user)
+    return render(request, 'social/profile.html', {'posts': posts})
 
 def register(request):
     if request.method == "POST":
@@ -82,11 +85,13 @@ def post_list(request, tag_slug=None):
 @login_required
 def create_post(request):
     if request.method == "POST":
-        form = CreatePostForm(request.POST)
+        form = CreatePostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
             post.save()
+            Image.objects.create(image_file=form.cleaned_data['image1'], post=post)
+            Image.objects.create(image_file=form.cleaned_data['image2'], post=post)
             form.save_m2m()
             return redirect('social:profile')
     else:
@@ -140,3 +145,46 @@ def post_comment(request, post_id):
         comment.save()
     context = {'post': post, 'comment': comment, 'form': form}
     return render(request, 'forms/comment.html', context)
+
+
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == "POST":
+        post.delete()
+        return redirect('social:profile')
+    else:
+        return render(request, 'forms/delete_post.html', {'post': post})
+
+
+@login_required
+def edit_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == "POST":
+        form = CreatePostForm(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            if form.cleaned_data.get('image1'):  # ✅
+                Image.objects.create(image_file=form.cleaned_data['image1'], post=post)
+            if form.cleaned_data.get('image2'):  # ✅
+                Image.objects.create(image_file=form.cleaned_data['image2'], post=post)
+            return redirect('social:profile')
+    else:
+        form = CreatePostForm(instance=post)
+    return render(request, 'forms/create_post.html', {'form': form, 'post': post})
+
+
+@login_required
+def delete_image(request, image_id):
+    image = get_object_or_404(Image, id=image_id)
+    image.delete()
+    return redirect('social:profile')
+
+
+def user_profile(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    posts = Post.objects.filter(author=user)
+    context = {'user': user, 'posts': posts}
+    return render(request, 'social/user_profile.html', context)

@@ -1,0 +1,43 @@
+<h2>پروفایل {{ request.user.get_full_name }}</h2>
+
+{% if request.user.photo %}
+    <img src="{{ request.user.photo.url }}" alt="عکس پروفایل" width="100">
+{% endif %}
+
+<p>نام کاربری: {{ request.user.username }}</p>
+<p>ایمیل: {{ request.user.email }}</p>
+<p>شغل: {{ request.user.job }}</p>
+<p>بایو: {{ request.user.bio }}</p>
+
+<a href="{% url 'social:edit_user' %}">ویرایش پروفایل</a>
+
+<hr>
+
+<h3>پست های من ({{ posts.count }})</h3>
+
+<a href="{% url 'social:create_post' %}">ایجاد پست جدید</a>
+
+<br><br>
+
+{% for post in posts %}
+    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 15px;">
+        <p>{{ post.description | truncatewords:20 }}</p>
+
+        {% for image in post.images.all %}
+            <img src="{{ image.image_file.url }}" alt="{{ image.title }}" width="150">
+        {% endfor %}
+
+        <br>
+        {% for tag in post.tags.all %}
+            <a href="{% url 'social:post_list_by_tag' tag.slug %}">{{ tag.name }}</a>
+            {% if not forloop.last %}, {% endif %}
+        {% endfor %}
+
+        <br><br>
+        <a href="{{ post.get_absolute_url }}">مشاهده پست</a>
+        <a href="{% url 'social:edit_post' post.id %}">ویرایش</a>
+        <a href="{% url 'social:delete_post' post.id %}">حذف</a>
+    </div>
+{% empty %}
+    <p>هنوز پستی ندارید.</p>
+{% endfor %}
